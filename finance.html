@@ -11,23 +11,23 @@
 <script src="topbar.js" defer></script>
 <style>
 :root {
-  --bg: #0A0A0B;
-  --bg-deep: #050506;
-  --bg-card: rgba(255, 255, 255, 0.04);
-  --bg-secondary: rgba(255, 255, 255, 0.035);
-  --glass-bg: rgba(255, 255, 255, 0.04);
-  --glass-border: transparent;
-  --glass-border-strong: transparent;
+  --bg: #070710;
+  --bg-deep: #070710;
+  --bg-card: rgba(255, 255, 255, 0.06);
+  --bg-secondary: rgba(255, 255, 255, 0.045);
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-border-strong: rgba(255, 255, 255, 0.14);
   --glass-shadow:
-    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
-    0 12px 40px rgba(0, 0, 0, 0.45),
-    0 1px 2px rgba(0, 0, 0, 0.25);
-  --text-primary: #FAFAFA;
-  --text-secondary: #B8B6B0;
-  --text-tertiary: #76746E;
-  --text-quaternary: #4D4B47;
-  --border: transparent;
-  --border-soft: transparent;
+    0 1px 0 0 rgba(255, 255, 255, 0.09) inset,
+    0 24px 60px rgba(0, 0, 0, 0.60),
+    0 1px 2px rgba(0, 0, 0, 0.40);
+  --text-primary: #FFFFFF;
+  --text-secondary: #B9B7C8;
+  --text-tertiary: #6A6880;
+  --text-quaternary: #44424F;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-soft: rgba(255, 255, 255, 0.05);
   --accent: #E07658;
   --success: #6BE3A4;
   --warning: #F2C063;
@@ -50,27 +50,32 @@ html, body {
   min-height: 100%;
 }
 
-/* Backdrop — black with subtle warm + cool washes */
 body::before {
   content: '';
   position: fixed;
-  inset: -10%;
+  inset: 0;
   z-index: -2;
   background:
-    radial-gradient(60% 45% at 82% 14%, rgba(224, 118, 88, 0.16) 0%, transparent 55%),
-    radial-gradient(55% 45% at 18% 90%, rgba(180, 180, 200, 0.06) 0%, transparent 55%),
-    linear-gradient(180deg, #0A0A0B 0%, #050506 100%);
-  filter: blur(40px) saturate(1.05);
+    radial-gradient(ellipse 68% 55% at 88% 6%, rgba(100, 55, 230, 0.32) 0%, transparent 58%),
+    radial-gradient(ellipse 60% 50% at 5% 90%, rgba(20, 180, 195, 0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 44% 38% at 50% 48%, rgba(220, 80, 50, 0.09) 0%, transparent 62%);
+  filter: blur(72px);
   pointer-events: none;
+  animation: aurora 32s ease-in-out infinite alternate;
+}
+@keyframes aurora {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(-2.5%, 3.5%) scale(1.04); }
+  66%  { transform: translate(3%, -2%) scale(0.97); }
+  100% { transform: translate(-1%, 2.5%) scale(1.02); }
 }
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: radial-gradient(rgba(255,255,255,0.014) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255,255,255,0.013) 1px, transparent 1px);
   background-size: 3px 3px;
-  opacity: 0.7;
   pointer-events: none;
 }
 
