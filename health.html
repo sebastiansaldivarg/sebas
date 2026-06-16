@@ -476,7 +476,12 @@ main {
   <!-- ===== WHOOP card (full) ===== -->
   <style>
     .whoop-section { margin-bottom: 32px; }
-    .whoop-card { padding: 24px 22px 20px; background: rgba(255,255,255,0.025); border: 1px solid transparent; border-radius: 22px; box-shadow: 0 1px 0 0 rgba(255,255,255,0.06) inset, 0 12px 40px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.25); }
+    .whoop-card { --wa: 76,175,80; padding: 24px 22px 20px; position: relative; background: rgba(255,255,255,0.025); border: 1px solid transparent; border-radius: 22px; box-shadow: 0 1px 0 0 rgba(255,255,255,0.06) inset, 0 12px 40px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.25); transition: border-color 0.7s, box-shadow 0.7s; }
+    .whoop-card.has-aura { border-color: rgba(var(--wa), 0.28); box-shadow: 0 1px 0 0 rgba(255,255,255,0.06) inset, 0 12px 40px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.25), 0 0 64px rgba(var(--wa), 0.10); }
+    .whoop-aura-bg { position: absolute; inset: 0; border-radius: inherit; background: radial-gradient(ellipse at 22% -10%, rgba(var(--wa), 0.18) 0%, transparent 58%); opacity: 0; pointer-events: none; transition: opacity 0.9s; }
+    .whoop-card.has-aura .whoop-aura-bg { opacity: 1; }
+    .whoop-ring-svg { transition: filter 0.7s; }
+    .whoop-card.has-aura .whoop-ring-svg { filter: drop-shadow(0 0 9px rgba(var(--wa), 0.55)); }
     .whoop-brand { display: inline-flex; align-items: center; gap: 8px; }
     .whoop-brand-mark { width: 22px; height: 22px; border-radius: 50%; background: #FFFFFF; color: #0A0A0B; font-weight: 900; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; letter-spacing: -0.04em; box-shadow: 0 0 12px rgba(255,255,255,0.20); }
     .whoop-brand-text { font-weight: 800; font-size: 13px; letter-spacing: 0.18em; color: var(--text-primary); }
@@ -541,7 +546,8 @@ main {
   </style>
   <div class="whoop-section">
     <div class="section-title">Whoop</div>
-    <div class="whoop-card">
+    <div class="whoop-card" id="whoopCard">
+      <div class="whoop-aura-bg" id="whoopAuraBg"></div>
       <div id="whoopDisconnected" class="whoop-disconnected">
         <div class="whoop-brand"><span class="whoop-brand-mark">W</span><span class="whoop-brand-text">WHOOP</span></div>
         <div class="whoop-disconnected-title">Not connected</div>
@@ -630,6 +636,7 @@ main {
     const verdictTag  = document.getElementById('whoopVerdictTag');
     const verdictCall = document.getElementById('whoopVerdictCall');
     const verdictSub  = document.getElementById('whoopVerdictSub');
+    const whoopCard = document.getElementById('whoopCard');
     document.getElementById('whoopConnectBtn').addEventListener('click', () => {
       const url = 'https://api.prod.whoop.com/oauth/oauth2/auth'
         + '?client_id=' + encodeURIComponent(CLIENT_ID)
@@ -665,10 +672,13 @@ main {
     function fmtMins(ms) { const m = Math.round(ms / 60000); const h = Math.floor(m / 60); return h + 'h ' + String(m % 60).padStart(2, '0') + 'm'; }
     function setRing(pct) {
       const color = pct >= 67 ? '#4CAF50' : pct >= 34 ? '#FFB74D' : '#FF5252';
+      const wa    = pct >= 67 ? '76,175,80' : pct >= 34 ? '255,183,77' : '255,82,82';
       ringFill.style.stroke = color;
       ringFill.style.strokeDashoffset = CIRC - (pct / 100) * CIRC;
       ringVal.textContent = Math.round(pct) + '%';
       ringVal.style.color = color;
+      whoopCard.style.setProperty('--wa', wa);
+      whoopCard.classList.add('has-aura');
     }
     function setVerdict(pct) {
       let cls, label, call, sub;
@@ -729,7 +739,7 @@ main {
     function render() {
       const t = loadTokens();
       if (t && t.access) { dEl.style.display = 'none'; cEl.style.display = ''; loadData(); }
-      else { dEl.style.display = ''; cEl.style.display = 'none'; verdictTag.style.display = 'none'; ringVal.textContent = '—'; ringFill.style.strokeDashoffset = CIRC; }
+      else { dEl.style.display = ''; cEl.style.display = 'none'; verdictTag.style.display = 'none'; ringVal.textContent = '—'; ringFill.style.strokeDashoffset = CIRC; whoopCard.classList.remove('has-aura'); whoopCard.style.removeProperty('--wa'); }
     }
     render();
   })();
