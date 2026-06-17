@@ -1,0 +1,24 @@
+{
+  "name": "Panel de Sebas",
+  "short_name": "Sebas",
+  "description": "Personal life OS — goals, health, fitness, finance",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070710",
+  "theme_color": "#070710",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Goals",   "url": "/index.html",   "icons": [{"src": "icon.svg", "sizes": "any"}] },
+    { "name": "Health",  "url": "/health.html",  "icons": [{"src": "icon.svg", "sizes": "any"}] },
+    { "name": "Fitness", "url": "/gym.html",      "icons": [{"src": "icon.svg", "sizes": "any"}] },
+    { "name": "Finance", "url": "/finance.html",  "icons": [{"src": "icon.svg", "sizes": "any"}] }
+  ]
+}

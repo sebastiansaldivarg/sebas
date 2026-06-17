@@ -339,6 +339,73 @@ body.topbar-modal-open { overflow: hidden; touch-action: none; }
     sync();
   }
 
+  // ── Service Worker registration ──────────────────────────────────────────
+  function registerSW() {
+    if (!('serviceWorker' in navigator) || isEmbedded()) return;
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      if (Notification.permission === 'granted') scheduleNotifications(reg);
+    }).catch(() => {});
+  }
+
+  // ── Notification scheduling (local, fires while tab is alive) ────────────
+  function scheduleNotifications(reg) {
+    if (!reg) { navigator.serviceWorker.ready.then(scheduleNotifications); return; }
+    const now = new Date();
+    const SCHEDULE = [
+      { hour: 7,  min: 0,  body: '🌅 Morning stack — revisa tus suplementos',  tag: 'stack-morning', url: '/health.html' },
+      { hour: 13, min: 0,  body: '🍽️ Stack del almuerzo',                      tag: 'stack-lunch',   url: '/health.html' },
+      { hour: 20, min: 0,  body: '💧 ¿Ya tomaste suficiente agua hoy?',          tag: 'water-check',   url: '/health.html' },
+      { hour: 21, min: 0,  body: '🌙 Stack nocturno + revisa tus metas',        tag: 'stack-evening', url: '/health.html' },
+    ];
+    SCHEDULE.forEach(({ hour, min, body, tag, url }) => {
+      const target = new Date(now);
+      target.setHours(hour, min, 0, 0);
+      const delay = target - now;
+      if (delay <= 0) return;
+      if (reg.active) reg.active.postMessage({ type: 'NOTIFY', delay, title: 'Panel de Sebas', body, tag, url });
+    });
+  }
+
+  // ── Notification permission — show banner once ────────────────────────────
+  function setupNotifications() {
+    if (!('Notification' in window) || isEmbedded()) return;
+    if (Notification.permission === 'granted') {
+      navigator.serviceWorker.ready.then(scheduleNotifications);
+      return;
+    }
+    if (Notification.permission === 'denied') return;
+    if (localStorage.getItem('notif_asked')) return;
+    // Inject banner
+    const banner = document.createElement('div');
+    banner.id = 'notif-banner';
+    banner.style.cssText = [
+      'position:fixed;bottom:calc(72px + env(safe-area-inset-bottom) + 10px);left:50%;transform:translateX(-50%)',
+      'z-index:99;display:flex;align-items:center;gap:10px',
+      'background:rgba(20,20,36,0.97);border:1px solid rgba(255,255,255,0.12)',
+      'backdrop-filter:blur(20px);border-radius:14px;padding:12px 16px',
+      'font-family:-apple-system,BlinkMacSystemFont,"Inter",sans-serif',
+      'font-size:13px;color:#B9B7C8;box-shadow:0 8px 32px rgba(0,0,0,0.6)',
+      'max-width:calc(100vw - 32px);white-space:nowrap'
+    ].join(';');
+    banner.innerHTML = `
+      <span style="font-size:16px">🔔</span>
+      <span style="flex:1;min-width:0">Activa notificaciones para recordatorios de stack y agua</span>
+      <button id="notif-ok" style="background:white;color:#0A0A0B;border:0;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">Activar</button>
+      <button id="notif-no" style="background:transparent;color:#6A6880;border:0;font-size:18px;cursor:pointer;padding:0 2px;flex-shrink:0" aria-label="Cerrar">×</button>`;
+    document.body.appendChild(banner);
+    document.getElementById('notif-ok').addEventListener('click', () => {
+      localStorage.setItem('notif_asked', '1');
+      banner.remove();
+      Notification.requestPermission().then(p => {
+        if (p === 'granted') navigator.serviceWorker.ready.then(scheduleNotifications);
+      });
+    });
+    document.getElementById('notif-no').addEventListener('click', () => {
+      localStorage.setItem('notif_asked', '1');
+      banner.remove();
+    });
+  }
+
   function boot() {
     injectStyleAndHTML();
     const btn = document.getElementById('topbarWaterAdd');
@@ -350,6 +417,8 @@ body.topbar-modal-open { overflow: hidden; touch-action: none; }
     window.addEventListener('focus', render);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
     setInterval(render, 30 * 1000);
+    registerSW();
+    setTimeout(setupNotifications, 2500);
   }
 
   if (document.readyState === 'loading') {
